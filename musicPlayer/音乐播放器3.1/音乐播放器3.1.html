@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <TITLE> 我的音乐盒 </TITLE>
+  <META NAME="Generator" CONTENT="EditPlus">
+  <META NAME="Author" CONTENT="">
+  <META NAME="Keywords" CONTENT="">
+  <META NAME="Description" CONTENT="">
+  <LINK href="style/common.css" rel="stylesheet" type="text/css">
+  <SCRIPT language="javascript" src="js/common.js"></SCRIPT>
+ </HEAD>
+
+ <BODY>
+ <div style="display:none">
+	  <OBJECT id="nsPlayer" classid="CLSID:22d6f312-b0f6-11d0-94ab-0080c74c7e95" codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=6,4,5,715" type="application/x-oleobject" width="100%" height="68">
+		<param name="FileName" value="">
+		<param name="AutoStart" value="1">
+		<param name="ShowDisplay" value="0">
+		<param name="ShowPositionControls" value="1">
+		<param name="ShowTracker" value="1">
+		<param name="ShowAudioControls" value="1">
+		<param name="ShowStatusBar" value="1">
+		<param name="ShowControls" value="1">
+		<param name="PlayCount" value="1">
+		<param name="AllowScan" value="1">
+	  </OBJECT>
+  </div>
+
+  <div style="display:">
+	<div style="background:url(images/11.gif);height:110px;width:800px">
+		<div style="margin-top:70px;margin-left:600px"><img src="images/noRepeating.jpg" onclick="this.src='images/repeating.jpg'"></div>
+	</div>
+  </div>
+  <br>
+  <input type="button" onclick="playOrPause()" id="playOrPause" value="暂停" style="display:none" class="button1">
+  <input type="button" onclick="changeMusic()" id="changeMusic" accessKey="X" value="换歌(X)" style="display:none" class="button1">
+  <input type="button" onclick="setVolumeOnce(200)" onmousedown="addVolume()" onmouseup="stopSetVolume()" onmouseout="stopSetVolume()" id="maxVolume" value="+" class="button3">
+  <span id="volumeZoon" style="width:20px"></span>%
+  <input type="button" onclick="setVolumeOnce(-200)" onmousedown="subVolume()" onmouseup="stopSetVolume()" onmouseout="stopSetVolume()" id="minVolume" value="-" class="button3">
+  <input type="button" id="preMusicBut" onclick="playPre()" value="|<<" style="display:none" class="button3" alt="上一首">
+  <input type="button" id="nextMusicBut" onclick="playNext()" value=">>|" style="display:none" class="button3" alt="下一首">
+  <input type="radio" name="musicType" value="single" onclick="changeType(this.value)">单曲循环
+  <input type="radio" name="musicType" value="random" onclick="changeType(this.value)">随机播放
+  <input type="radio" name="musicType" value="order" onclick="changeType(this.value)">顺序播放
+  <br><br>
+  <div id="nowPlay" style="font-size:12px;color:red"></div>
+  <div>
+	<input type="file" id="filePath" size="40" class="button1"><input type="button" value="获取歌曲" onclick="showMusic()" class="button2">
+	<a href="javascript:help('help')">不会?</a><input id="help" class="helpInput" size="70" readonly value="(点击“浏览”选取文件后点击“获取歌曲”可获得当前文件夹下所有音乐)">
+  </div>
+  <table width="100%">
+	<tr>
+		<td height="390" width="70%">
+			<div id="musicSpace"></div>
+		</td>
+		<td width="30%" height="390">
+			<div id="musicList"></div>
+		</td>
+	</tr>
+  </table>
+列表名称： <input id="listName" style="height:16px"> <input type="button" value="保存歌曲列表" onclick="saveList()" class="button2"> <font style="color:white;font-size:12px">create by Blackwood</font>
+ </BODY>
+ <script>
+	//获取播放器对象
+	var wmp = document.getElementById("nsPlayer");
+	fillVolumeZoon();
+	//读取上一次播放状态
+	loadStatus();
+	//结束时换歌
+	wmp.attachEvent("EndOfStream",playNext);
+	loadList();
+ </script>
+</HTML>

@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+ <HEAD>
+  <TITLE> New Document </TITLE>
+  <META NAME="Generator" CONTENT="EditPlus">
+  <META NAME="Author" CONTENT="">
+  <META NAME="Keywords" CONTENT="">
+  <META NAME="Description" CONTENT="">
+  <script language="javaScript">
+	var filePath = "";											// 文件路径
+	var arr = new Array();										// 歌曲数组
+    var fso = new ActiveXObject("Scripting.FileSystemObject");	// 文件操作对象
+	var fl = "";												// 文件夹对象
+	var reg = "MP3,WMA,mp3,wma";									// 文件类型
+	var file = "";												// 文件对象
+	var spaceHtml = "";											// 歌曲列表文本
+	var nowMusic = "";											// 当前播放歌曲
+	
+	//alert(nsPlayer.\);
+	//换歌，当没有选择确定歌曲时随机选歌进行切换
+	function changeMusic(num){
+		if(num == undefined)
+			num = Math.floor(Math.random()*arr.length);
+		nowMusic = num;
+		filePath = new String(filePath);
+		filePath = filePath.replace('\\','//');
+		var url = unescape(filePath + "//" + arr[num]);
+		wmp.open(url);
+		setTimeout(playMusic,0);
+		//document.getElementById("nowPlay").innerHTML = "正在播放：" + url;
+		document.title = arr[num];
+	}
+
+	//播放音乐
+	function playMusic()
+	{
+		wmp.play();
+	}
+
+	//获取选择歌曲的文件夹路径，读出文件下所有歌曲
+	function showMusic()
+	{
+		spaceHtml = "";
+		arr.splice(0,arr.length);
+		filePath = document.getElementById("filePath").value;
+		if(filePath == "")
+		{
+			alert("请选择路径！");
+			return;
+		}
+		file = fso.getFile(filePath);
+		filePath = file.parentFolder;
+		openPath(filePath);
+		
+	}
+
+	//将列表路径保存至cookie中
+	function writeCookie(str)
+	{
+		document.cookie = "musicPath=" + str + ";";
+	}
+
+	//读取cookie中保存的上次列表路径
+	function readCookie()
+	{
+		filePath = getCookie("musicPath");
+		openPath(filePath);
+	}
+
+	//打开路径中所有歌曲列表
+	function openPath(filePath)
+	{
+		try
+		{
+			fl = fso.getFolder(filePath);
+			var fls = new Enumerator(fl.Files);
+			while(!fls.atEnd()){
+				var of = fls.item();
+				if(checkMusicType(of.name))
+					arr.push(of.name);
+				fls.moveNext();
+			}
+		}
+		catch (e)
+		{
+			alert("获取路径失败！");
+			document.getElementById("changeMusic").style.display = "none";
+		}
+		
+		for(var i=0;i<arr.length;i++)
+		{
+			spaceHtml += "<a href='javascript:changeMusic(" + i + ")'>" + arr[i] + "</a>&nbsp;&nbsp;&nbsp;";
+			if(i%5 == 4 && i > 0)
+				spaceHtml += "<br><br>";
+		}
+
+		document.getElementById("musicSpace").innerHTML = spaceHtml;
+		if(arr.length != 0)
+		{
+			document.getElementById("changeMusic").style.display = "";
+			writeCookie(encodeURIComponent(filePath));
+		}
+		else
+			document.getElementById("changeMusic").style.display = "none";
+	}
+
+	//播放下一首，当没有歌曲播放时随机选取一首进行播放(未使用)
+	function nextMusic()
+	{
+		if(nowMusic == "")
+			nowMusic = Math.floor(Math.random()*arr.length);
+		else
+			nowMusic++;
+		changeMusic(nowMusic);
+	}
+
+	//根据传入的cookieName返回对应的值
+	function getCookie(cookieName)
+	{
+		var cookieStr = decodeURIComponent(document.cookie);
+		var start=0,end=0
+		if(cookieStr.indexOf(cookieName) != -1)
+		{
+			start = cookieStr.indexOf(cookieName + "=") + cookieName.length;
+			end = cookieStr.indexOf(";",start) > 0 ? cookieStr.indexOf(";",start) : cookieStr.length;
+			return cookieStr.substring(start+1,end);
+		}
+		else
+		{
+			return "";
+		}
+	}
+
+	//判断是否是音乐文件
+	function checkMusicType(fileName)
+	{
+		var musicTypes = reg.split(",");
+		var flag = false;
+		for(var n=0;n<musicTypes.length;n++)
+		{
+			if(fileName.indexOf(musicTypes[n]) != -1)
+			{
+				flag = true;
+				break;
+			}
+		}
+		return flag;
+	}
+  </script>
+
+  <style>
+	#musicSpace
+	{
+		font-size: 12px;
+	}
+  </style>
+ </HEAD>
+
+ <BODY onload="readCookie();changeMusic();">
+  <OBJECT id="nsPlayer" classid="CLSID:22d6f312-b0f6-11d0-94ab-0080c74c7e95" codebase="http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=6,4,5,715" type="application/x-oleobject" width="100%" height="68">
+	<param name="FileName" value="">
+	<param name="AutoStart" value="1">
+	<param name="ShowDisplay" value="0">
+	<param name="ShowPositionControls" value="1">
+	<param name="ShowTracker" value="1">
+	<param name="ShowAudioControls" value="1">
+	<param name="ShowStatusBar" value="1">
+	<param name="ShowControls" value="1">
+	<param name="PlayCount" value="1">
+	<param name="AllowScan" value="1">
+  </OBJECT>
+  <input type="button" onclick="changeMusic()" id="changeMusic" value="换歌" style="display:none">
+  <br>
+  <div id="nowPlay" style="font-size:12px;color:red"></div>
+  <div>
+	<input type="file" id="filePath" size="40"	><input type="button" value="获取歌曲" onclick="showMusic()">
+  </div>
+  <div id="musicSpace"></div>
+ </BODY>
+ <script>
+	// 获取播放器对象
+	var wmp = document.getElementById("nsPlayer");
+	//结束时换歌
+	wmp.attachEvent("EndOfStream",playNext);
+	function playNext()
+	{
+		changeMusic();
+	}
+ </script>
+</HTML>
